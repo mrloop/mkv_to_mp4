@@ -9,6 +9,17 @@
 # Usage ./mkv_to_mp4.sh FILEDIR
 # Where FILEDIR is the top dir you want to search and convert
 
+
+# Handle signals and tidy up
+
+trap "trapped" ABRT EXIT HUP INT KILL QUIT TERM
+function trapped {
+  if [ -f $CURRENT_MP4 ]
+  then
+    rm $CURRENT_MP4
+  fi
+}
+
 # save and change IFS 
 OLDIFS=$IFS
 IFS=$'\n'
@@ -44,11 +55,13 @@ do
     echo "${mkv_file} skipping mp4 found here: ${mp4_file}"
   else
     echo "${mkv_file} remuxing"
-    ffmpeg -v error -i "${mkv_file}" -codec copy "${mkv_file%.*}.mp4"
-    if [ "$?" -ne 0 ] && [ -f "${mkv_file%.*}.mp4" ]
+    CURRENT_MP4="${mkv_file%.*}.mp4"
+    ffmpeg -v error -i "${mkv_file}" -codec copy $CURRENT_MP4
+    if [ "$?" -ne 0 ] && [ -f $CURRENT_MP4 ]
     then
-      rm "${mkv_file%.*}.mp4"
+      rm $CURRENT_MP4
     fi
+    CURRENT_MP4=
   fi
 
 done
