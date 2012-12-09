@@ -14,7 +14,7 @@
 
 trap "trapped" ABRT EXIT HUP INT KILL QUIT TERM
 function trapped {
-  if [ -f $CURRENT_MP4 ]
+  if [ ! -z ${CURRENT_MP4} ] && [ -f $CURRENT_MP4 ]  
   then
     rm $CURRENT_MP4
   fi
